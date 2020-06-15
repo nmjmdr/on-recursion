@@ -22,3 +22,24 @@ const lat = (xs) => isEmpty(xs) ?
                         true :
                         (isAtom(car(xs)) && lat(cdr(xs)))
 
+const isMember = (x, xs) => isEmpty(xs) ? 
+                            false :
+                            (
+                                eq(x, car(xs)) ? true : isMember(x,cdr(xs))
+                            )
+
+const descendingMember = (x,xs) =>  cond(
+                                            isEmpty(xs),
+                                            false,
+                                            ()=>{
+                                                const y = car(xs)
+                                                const ys = cdr(xs)
+                                                return cond(eq(x,y),
+                                                  true,
+                                                  isAtom(y)? descendingMember(x,ys) : descendingMember(x,y)
+                                                )  
+                                            }
+                                        )
+                                    
+
+console.log(descendingMember(1,[2,3,4,[5,[4,[6,0]]]]))
