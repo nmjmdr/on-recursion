@@ -6,13 +6,14 @@ const cdr = ([_,...xs]) => xs
 
 const cons = (x, ys) => [x,...ys]
 
-const cond = (c, ex, ey) => {
-   const exp = c ? ex : ey
-   return typeof(exp) == 'function' ? exp() : exp
-}
 
 // null? - only defined on lists
-const isEmpty = (xs) => cond(Array.isArray(xs), xs.length === 0, ()=>{ throw new Error('not a list') })
+const isEmpty = (xs) => {
+    if(!Array.isArray(xs)) {
+        throw new Error('not a list')
+    }
+    return xs.length === 0
+}
 
 const isAtom = (x) => !Array.isArray(x) || x.length === 0
 
@@ -24,22 +25,70 @@ const lat = (xs) => isEmpty(xs) ?
 
 const isMember = (x, xs) => isEmpty(xs) ? 
                             false :
-                            (
-                                eq(x, car(xs)) ? true : isMember(x,cdr(xs))
-                            )
+                            eq(x, car(xs)) ? true : isMember(x,cdr(xs))
 
-const descendingMember = (x,xs) =>  cond(
-                                            isEmpty(xs),
-                                            false,
-                                            ()=>{
-                                                const y = car(xs)
-                                                const ys = cdr(xs)
-                                                return cond(eq(x,y),
-                                                  true,
-                                                  isAtom(y)? descendingMember(x,ys) : descendingMember(x,y)
-                                                )  
-                                            }
-                                        )
-                                    
+const descendingMember = (x,xs) =>  {
+    
+    if(isEmpty(xs)) {
+        return false
+    }
+ 
+    const {y, ys} = (car(xs), cdr(xs))
+    return eq(x,y) ?
+                true :
+                isAtom(y)? descendingMember(x,ys) : descendingMember(x,y)                                        
+}
 
-console.log(descendingMember(1,[2,3,4,[5,[4,[6,0]]]]))
+// using quick sort to find a member would faster
+const partition = (p,xs) => {
+    return xs.reduce((acc,x)=>{
+        x < p ?
+            acc.small.push(x) : acc.large.push(x)
+        return acc
+    },{small:[],large:[]})
+}
+const qsort = (xs) => {
+    if(isEmpty(xs)) {
+        return xs
+    }
+    const [pivot,...ys] = xs
+    const {small, large} = partition(pivot, ys)
+    return [...qsort(small),pivot,...qsort(large)]
+}
+                       
+                                
+
+const bsearch = (key, arr, low, high) => {
+    if(high < low) {
+        return false
+    }
+    const mid = Math.floor(low + ((high - low) / 2))
+    if(arr[mid] === key) {
+        return true
+    }
+    if(key < arr[mid]) {
+        return bsearch(key, arr, low, mid-1)
+    } else {
+        return bsearch(key, arr, mid+1, high)
+    }
+}
+
+const rember = (x, xs) => {
+    if(isEmpty(xs)) {
+        return xs
+    }
+    const [y,...ys] = xs
+    return eq(x, y) ? ys : [y,...rember(x,ys)]
+}
+
+const firsts = (xss) => {
+    if(isEmpty(xss)) {
+        return xss
+    }
+    const [[f,..._], ...ys] = xss
+   
+    return isAtom(f) ? [[f],...firsts(ys)] : firsts(ys)
+}
+
+
+console.log(firsts([[1,2,3],[5,6,7],[8]]))
