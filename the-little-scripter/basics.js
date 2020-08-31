@@ -91,4 +91,15 @@ const firsts = (xss) => {
 }
 
 
-console.log(firsts([[1,2,3],[5,6,7],[8]]))
+const insertR = (s, o, n) => {
+    if(isEmpty(s)) {
+        return s
+    }
+    const [x,...xs] = s
+    if(eq(x,o)){
+        return [x,n,...xs]
+    }
+    return [x,...insertR(xs,o, n)]
+}
+
+console.log(insertR(['a','b','c','d','f','g','h'],'d', 'e'))
