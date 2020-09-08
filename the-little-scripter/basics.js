@@ -19,24 +19,30 @@ const isAtom = (x) => !Array.isArray(x) || x.length === 0
 
 const eq = (x,y) => isAtom(x) && isAtom(y) && x === y
 
-const lat = (xs) => isEmpty(xs) ? 
-                        true :
-                        (isAtom(car(xs)) && lat(cdr(xs)))
+const lat = (s) => {
+    if(isEmpty(s)) {
+        return true
+    }
+    const [x,...xs] = s
+    return isAtom(x) && lat(xs)
+}
 
-const isMember = (x, xs) => isEmpty(xs) ? 
-                            false :
-                            eq(x, car(xs)) ? true : isMember(x,cdr(xs))
-
-const descendingMember = (x,xs) =>  {
-    
-    if(isEmpty(xs)) {
+const isMember = (k, s) => {
+    if(isEmpty(s)){
         return false
     }
- 
-    const {y, ys} = (car(xs), cdr(xs))
-    return eq(x,y) ?
+    const [x,...xs] = s
+    return eq(k, x) ? true : isMember(k,xs)
+}
+
+const descendingMember = (k,s) =>  {
+    if(isEmpty(s)) {
+        return false
+    }
+    const [x,...xs] = s
+    return eq(k,x) ?
                 true :
-                isAtom(y)? descendingMember(x,ys) : descendingMember(x,y)                                        
+                isAtom(x)? descendingMember(k,xs) : descendingMember(k,x)                                        
 }
 
 // using quick sort to find a member would faster
@@ -102,4 +108,45 @@ const insertR = (s, o, n) => {
     return [x,...insertR(xs,o, n)]
 }
 
-console.log(insertR(['a','b','c','d','f','g','h'],'d', 'e'))
+const insertL = (s, o, n) => {
+    if(isEmpty(s)) {
+        return s
+    }
+    const [x,...xs] = s
+    if(eq(x,o)){
+        return [n,x,...xs]
+    }
+    return [x,...insertR(xs,o, n)]
+}
+
+const subs = (s, o, n) => {
+    if(isEmpty(s)) {
+        return s
+    }
+    const [x,...xs] = s
+    if(eq(x,o)){
+        return [n,...xs]
+    }
+    return [x,...subs(xs,o, n)]
+}
+
+// insertR, insertL, subs and rember can all be coded using this replace function
+// and supplying necessary function
+const replace = (s, o, fn) => {
+    if(isEmpty(s)) {
+        return s
+    }
+    const [x,...xs] = s
+    if(eq(x,o)){
+        return fn(x,xs)
+    }
+    return [x,...replace(xs,o,fn)]
+}
+
+
+const rember1 = (x, xs) => replace(xs,x,(_,ys)=>ys)
+const insertR1 = (s, o, n) => replace(s, o, (x,xs)=>[x,n,...xs])
+const insertL1 = (s, o, n) => replace(s, o, (x,xs)=>[n,x,...xs])
+const subs1 = (s, o, n) => replace(s, o, (x,xs)=>[n,...xs])
+
+console.log(subs1(['a','b','c','d','f','g','h'],'f','e'))
