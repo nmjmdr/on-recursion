@@ -42,7 +42,11 @@ const descendingMember = (k,s) =>  {
     const [x,...xs] = s
     return eq(k,x) ?
                 true :
-                isAtom(x)? descendingMember(k,xs) : descendingMember(k,x)                                        
+                isAtom(x)? descendingMember(k,xs) : 
+                (
+                    descendingMember(k,x) ||
+                    descendingMember(k,xs)
+                )                        
 }
 
 // using quick sort to find a member would faster
