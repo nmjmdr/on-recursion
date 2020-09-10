@@ -154,3 +154,16 @@ const insertL1 = (s, o, n) => replace(s, o, (x,xs)=>[n,x,...xs])
 const subs1 = (s, o, n) => replace(s, o, (x,xs)=>[n,...xs])
 
 console.log(subs1(['a','b','c','d','f','g','h'],'f','e'))
+
+const match = (s, replace) => {
+    if(isEmpty(s)) {
+        return s
+    }
+    const [x,...xs] = s
+    const r = replace(x)
+    return r != null ? [...r,...match(xs, replace)] : [...match(xs, replace)]
+} 
+
+const multIf = (s,c) => match(s,(x)=> x%2==0 ? [x]:[x*c])
+
+console.log(multIf([1,2,3,4],100))
