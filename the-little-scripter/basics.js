@@ -1,18 +1,8 @@
-
-
-const car = ([x,..._]) => x 
-
-const cdr = ([_,...xs]) => xs
-
-const cons = (x, ys) => [x,...ys]
-
-
-// null? - only defined on lists
-const isEmpty = (xs) => {
-    if(!Array.isArray(xs)) {
+const isEmpty = (s) => {
+    if(!Array.isArray(s)) {
         throw new Error('not a list')
     }
-    return xs.length === 0
+    return s.length === 0
 }
 
 const isAtom = (x) => !Array.isArray(x) || x.length === 0
@@ -28,99 +18,52 @@ const lat = (s) => {
 }
 
 const isMember = (k, s) => {
-    if(isEmpty(s)){
-        return false
-    }
-    const [x,...xs] = s
-    return eq(k, x) ? true : isMember(k,xs)
-}
-
-const descendingMember = (k,s) =>  {
     if(isEmpty(s)) {
         return false
     }
     const [x,...xs] = s
-    return eq(k,x) ?
-                true :
-                isAtom(x)? descendingMember(k,xs) : 
-                (
-                    descendingMember(k,x) ||
-                    descendingMember(k,xs)
-                )                        
+    return eq(k,x) || isMember(k, xs)
 }
 
-// using quick sort to find a member would faster
-const partition = (p,xs) => {
-    return xs.reduce((acc,x)=>{
-        x < p ?
-            acc.small.push(x) : acc.large.push(x)
-        return acc
-    },{small:[],large:[]})
-}
-const qsort = (xs) => {
-    if(isEmpty(xs)) {
-        return xs
-    }
-    const [pivot,...ys] = xs
-    const {small, large} = partition(pivot, ys)
-    return [...qsort(small),pivot,...qsort(large)]
-}
-                       
-                                
-
-const bsearch = (key, arr, low, high) => {
-    if(high < low) {
+const descendingMember = (k, s) => {
+    if(isEmpty(s)) {
         return false
     }
-    const mid = Math.floor(low + ((high - low) / 2))
-    if(arr[mid] === key) {
-        return true
-    }
-    if(key < arr[mid]) {
-        return bsearch(key, arr, low, mid-1)
-    } else {
-        return bsearch(key, arr, mid+1, high)
-    }
+    const [x,...xs] = s
+    return eq(k,x) || 
+        (isAtom(x) ?
+            descendingMember(k, xs) :
+            (
+                descendingMember(k, x) ||
+                descendingMember(k, xs)
+            )
+        )
 }
 
-const rember = (x, xs) => {
-    if(isEmpty(xs)) {
-        return xs
-    }
-    const [y,...ys] = xs
-    return eq(x, y) ? ys : [y,...rember(x,ys)]
-}
-
-const firsts = (xss) => {
-    if(isEmpty(xss)) {
-        return xss
-    }
-    const [[f,..._], ...ys] = xss
-   
-    return isAtom(f) ? [[f],...firsts(ys)] : firsts(ys)
-}
-
-
-const insertR = (s, o, n) => {
+const mult = (s, c) => {
     if(isEmpty(s)) {
         return s
     }
     const [x,...xs] = s
-    if(eq(x,o)){
-        return [x,n,...xs]
-    }
-    return [x,...insertR(xs,o, n)]
+    return [x*c, ...mult(xs,c)]    
 }
 
-const insertL = (s, o, n) => {
+// higher order functions
+const multIf = (s, c, cond) => {
     if(isEmpty(s)) {
         return s
     }
     const [x,...xs] = s
-    if(eq(x,o)){
-        return [n,x,...xs]
+    return cond(x) ? [x*c, ...multIf(xs,c, cond)] :  [x, ...multIf(xs,c, cond)] 
+}
+
+
+const rember = (s, k) => {
+    if(isEmpty(s)) {
+        return s
     }
-    return [x,...insertR(xs,o, n)]
+    const [x,...xs] = s
+    return x === k ? [...rember(xs, k)] : [x,...rember(xs, k)]
 }
 
 const subs = (s, o, n) => {
@@ -128,32 +71,8 @@ const subs = (s, o, n) => {
         return s
     }
     const [x,...xs] = s
-    if(eq(x,o)){
-        return [n,...xs]
-    }
-    return [x,...subs(xs,o, n)]
+    return x === o? [n, ...subs(xs, o, n)] : [x, ...subs(xs, o, n)]
 }
-
-// insertR, insertL, subs and rember can all be coded using this replace function
-// and supplying necessary function
-const replace = (s, o, fn) => {
-    if(isEmpty(s)) {
-        return s
-    }
-    const [x,...xs] = s
-    if(eq(x,o)){
-        return fn(x,xs)
-    }
-    return [x,...replace(xs,o,fn)]
-}
-
-
-const rember1 = (x, xs) => replace(xs,x,(_,ys)=>ys)
-const insertR1 = (s, o, n) => replace(s, o, (x,xs)=>[x,n,...xs])
-const insertL1 = (s, o, n) => replace(s, o, (x,xs)=>[n,x,...xs])
-const subs1 = (s, o, n) => replace(s, o, (x,xs)=>[n,...xs])
-
-console.log(subs1(['a','b','c','d','f','g','h'],'f','e'))
 
 const match = (s, replace) => {
     if(isEmpty(s)) {
@@ -162,8 +81,29 @@ const match = (s, replace) => {
     const [x,...xs] = s
     const r = replace(x)
     return r != null ? [...r,...match(xs, replace)] : [...match(xs, replace)]
-} 
+}
 
-const multIf = (s,c) => match(s,(x)=> x%2==0 ? [x]:[x*c])
+const multIfv2 = (s, c, cond) => match(s, (x)=> cond(x)? [x*c] : [x])
+const remberv2 = (s, k) => match(s, (x)=> x === k? null : [x] )
+const subsv2 = (s, o, n) => match(s, (x)=> x === o? [n] : [x] )
 
-console.log(multIf([1,2,3,4],100))
+const insertR = (s, o, n) => {
+    if(isEmpty(s)) {
+        return s
+    }
+    const [x,...xs] = s
+    return x === o? [x,n, ...insertR(xs, o, n)] : [x, ...insertR(xs, o, n)]
+}
+
+const insertRv2 = (s, o, n) => match(s, (x)=> x === o? [x,n] : [x] )
+
+const insertL = (s, o, n) => {
+    if(isEmpty(s)) {
+        return s
+    }
+    const [x,...xs] = s
+    return x === o? [n,x,...insertL(xs, o, n)] : [x, ...insertL(xs, o, n)]
+}
+
+const insertLv2 = (s, o, n) => match(s, (x)=> x === o? [n,x] : [x] )
+
