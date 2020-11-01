@@ -107,3 +107,98 @@ const insertL = (s, o, n) => {
 
 const insertLv2 = (s, o, n) => match(s, (x)=> x === o? [n,x] : [x] )
 
+const occurs = (s,c) => {
+    if(isEmpty(s)) {
+        return 0
+    }
+    const [x,...xs] = s
+    return x === c ? 1 + occurs(xs, c) : occurs(xs, c)
+}
+
+const addvec = (s) => {
+    if(isEmpty(s)) {
+        return 0
+    }
+    const [x,...xs] = s
+    return x + addvec(xs)
+}
+
+/*
+- version 1:
+                addvec([1,2,3]) 
+                1 + addvec([2,3]) push to stack: adress of statement to execute 1 + ...
+                2 + addvec([3]) push to stack:  adress of statement to execute 2 + ...
+                3 + addvec([]) push to stack:  adress of statement to execute 3 + ...
+                return 0
+                return 3 + 0
+                return 2 + 3
+                return 1 + 5
+                */
+
+const multvec = (s) => {
+    if(isEmpty(s)) {
+        return 1
+    }
+    const [x,...xs] = s
+    return x * multvec(xs)
+}
+
+const reduce = (s, init, fn) => {
+    if(isEmpty(s)) {
+        return init
+    }
+    const [x,...xs] = s
+    return fn(x, reduce(xs, init, fn))
+}
+
+const addvec2 = (s, acc) => {
+    if(isEmpty(s)) {
+        return acc
+    }
+    const [x,...xs] = s
+    return addvec2(xs, x+acc)
+}
+
+/*
+ - version 2:
+                addvec2([1,2,3],0)
+                addvec([2,3], 1 + 0) --- point c, (no next statement to execute, just has to return)
+                addvec([3], 2 + 1) ---- point b (no next statement to execute, just has to return)
+                addvec([], 3+3) ----- point a (no next statement to execute, just has to return)
+                return 6           
+                return 6 --------- point a 
+                return 6 --------- point b
+                return 6 --------- point c
+*/
+
+const addvec3 = (s, acc) => {
+    while(!isEmpty(s)) {
+        const [x,...xs] = s
+        acc = x + acc
+        s = xs
+    }
+    return acc
+}
+
+console.log(addvec3([1,2,3,4],0))
+
+const multvec2 = (s, acc) => {
+    if(isEmpty(x)) {
+        return acc
+    }
+    const [x,...xs] = s
+    return multvec(xs, x*acc)
+}
+
+const reduce2 = (s, acc, fn) => {
+    if(isEmpty(s)) {
+        return acc
+    }
+    const [x,...xs] = s
+    return reduce2(xs, fn(x, acc), fn)
+}
+
+
+
+
+

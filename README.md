@@ -85,8 +85,29 @@ We are now ready for our first recursive function
         - need to change (version 2) mult, multIf, rember and subs
     
 
-  
+- Tail recursion
 
+    - addvec (adds all elements of an array) 
+    - multVec (multiply all elements of an array)
+    - Reduce (version 1)
+    - Delve into how this works
+
+    - add vector version 2
+        - using the concept of an accumulator
+    - Reduce (version 2)
+    - difference between both the approaches
+        - tail recursion
+            A function call is said to be tail recursive if there is nothing to do after the function returns except return its value. (http://wiki.c2.com/?TailRecursion)
+        - tail call optimization
+        - tail call optimized version
+            - compiler recognizes this and optimises, essentially optimises to use a iterative version 
+    
+    
+
+    
+
+
+    
 
 
 
