@@ -1,7 +1,9 @@
 On Recursion
 
 Video series:
+
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/1LFfkJ0Vu1E/0.jpg)](https://www.youtube.com/watch?v=1LFfkJ0Vu1E&list=PLnc-9WSlJzpfhubE5plSu4LXZbvoreCV7&ab_channel=paperandpen-softwaredesign "Design of faulet tolerant Job queue - Jobber")
+
 
 
 - Try and develop an `intutive` understanding of `recursion`
